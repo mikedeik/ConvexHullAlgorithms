@@ -2,47 +2,53 @@ import matplotlib.pyplot as plt
 
 class Point:
     def __init__(self, x, y):
-        self.x = x
-        self.y = y
+        self._x = x
+        self._y = y
 
     def __str__(self) -> str:
-        return f'({self.x},{self.y})'
+        return f'({self._x},{self._y})'
     
     def __repr__(self):
         return str(self)
     
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, Point):
-            return self.x == __value.x and self.y == __value.y
+            return self._x == __value._x and self._y == __value._y
         return False
     
     def __hash__(self) -> int:
-        return hash((self.x, self.y))
+        return hash((self._x, self._y))
     
     def __lt__(self, __value: object) -> bool:
 
         if isinstance(__value, Point):
-            if self.x == __value.x : 
-                return self.y < __value.y 
+            if self._x == __value._x : 
+                return self._y < __value._y 
             else : 
-                return self.x < __value.x
+                return self._x < __value._x
         raise Exception(f"Can't compare {type(self)} and {type(__value)}")
 
 class Edge:
-    def __init__(self, start, end):
-        self.start = start
-        self.end = end
+    def __init__(self, _start: Point, _end: Point):
+        self._start = _start
+        self._end = _end
     
     def __str__(self) -> str:
-        return f'{self.start} -> {self.end}'
+        return f'{self._start} -> {self._end}'
     
     def __repr__(self):
         return str(self)
     
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, Edge):
-            return self.start == __value.start and self.end == __value.end
+            return self._start == __value._start and self._end == __value._end
         return False
+    
+    def start(self) -> Point:
+        return self._start
+    
+    def end(self) -> Point:
+        return self._end
     
 
 def plotEdges(edge1, edge2):
@@ -50,16 +56,16 @@ def plotEdges(edge1, edge2):
     fig, ax = plt.subplots()
 
     # Extract the x and y coordinates of the edges
-    x_coords1 = [edge1.start.x, edge1.end.x]
-    y_coords1 = [edge1.start.y, edge1.end.y]
-    x_coords2 = [edge2.start.x, edge2.end.x]
-    y_coords2 = [edge2.start.y, edge2.end.y]
+    x_coords1 = [edge1._start._x, edge1._end._x]
+    y_coords1 = [edge1._start._y, edge1._end._y]
+    x_coords2 = [edge2._start._x, edge2._end._x]
+    y_coords2 = [edge2._start._y, edge2._end._y]
 
     # Plot the edges
     ax.plot(x_coords1, y_coords1, label='Edge 1', marker='o')
     ax.plot(x_coords2, y_coords2, label='Edge 2', marker='o')
 
-    # Set labels and legend
+    # Set labels and leg_end
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
     ax.legend()
@@ -68,10 +74,42 @@ def plotEdges(edge1, edge2):
     plt.show()
 
 
+def plotPolygon(polygon, points):
+    # Extract vertices and edges from the polygon
+    vertices = polygon.getVertices()
+    edges = polygon.getEdges()
+
+    # Extract x and y coordinates of vertices
+    x_coords = [point._x for point in points]
+    y_coords = [point._y for point in points]
+
+    # Plot all the points
+    plt.scatter(x_coords, y_coords, color='red', label='Points')
+
+    # Extract x and y coordinates of edges
+    edge_x = []
+    edge_y = []
+    for edge in edges:
+        edge_x.extend([edge._start._x, edge._end._x, None])
+        edge_y.extend([edge._start._y, edge._end._y, None])
+
+    # Plot the edges
+    plt.plot(edge_x, edge_y, linestyle='-', color='blue', label='Polygon Edges')
+
+    # Set labels and legend
+    plt.xlabel('X')
+    plt.ylabel('Y')
+    plt.title('Polygon with Points and Edges')
+    plt.legend()
+    plt.grid(True)
+
+    # Show the plot
+    plt.show()
+
 def doEdgesIntersect(edge1, edge2):
     # Calculate the slopes of the edges
-    slope1 = (edge1.end.y - edge1.start.y) / (edge1.end.x - edge1.start.x) if edge1.end.x != edge1.start.x else float('inf')
-    slope2 = (edge2.end.y - edge2.start.y) / (edge2.end.x - edge2.start.x) if edge2.end.x != edge2.start.x else float('inf')
+    slope1 = (edge1._end._y - edge1._start._y) / (edge1._end._x - edge1._start._x) if edge1._end._x != edge1._start._x else float('inf')
+    slope2 = (edge2._end._y - edge2._start._y) / (edge2._end._x - edge2._start._x) if edge2._end._x != edge2._start._x else float('inf')
 
     # Check if the slopes are equal (parallel lines)
     if slope1 == slope2:
@@ -79,24 +117,24 @@ def doEdgesIntersect(edge1, edge2):
 
     # Calculate the intersection point
     intersection_x = (
-        (edge2.start.y - edge1.start.y) + (slope1 * edge1.start.x - slope2 * edge2.start.x)
+        (edge2._start._y - edge1._start._y) + (slope1 * edge1._start._x - slope2 * edge2._start._x)
     ) / (slope1 - slope2)
 
-    intersection_y = slope1 * (intersection_x - edge1.start.x) + edge1.start.y
+    intersection_y = slope1 * (intersection_x - edge1._start._x) + edge1._start._y
 
     # Check if the intersection point lies within both line segments
     def isBetween(a, b, c):
         return a <= b <= c or c <= b <= a
 
     if (
-        isBetween(edge1.start.x, intersection_x, edge1.end.x)
-        and isBetween(edge1.start.y, intersection_y, edge1.end.y)
-        and isBetween(edge2.start.x, intersection_x, edge2.end.x)
-        and isBetween(edge2.start.y, intersection_y, edge2.end.y)
-        and not (intersection_x == edge1.start.x and intersection_y == edge1.start.y)
-        and not (intersection_x == edge1.end.x and intersection_y == edge1.end.y)
-        and not (intersection_x == edge2.start.x and intersection_y == edge2.start.y)
-        and not (intersection_x == edge2.end.x and intersection_y == edge2.end.y)
+        isBetween(edge1._start._x, intersection_x, edge1._end._x)
+        and isBetween(edge1._start._y, intersection_y, edge1._end._y)
+        and isBetween(edge2._start._x, intersection_x, edge2._end._x)
+        and isBetween(edge2._start._y, intersection_y, edge2._end._y)
+        and not (intersection_x == edge1._start._x and intersection_y == edge1._start._y)
+        and not (intersection_x == edge1._end._x and intersection_y == edge1._end._y)
+        and not (intersection_x == edge2._start._x and intersection_y == edge2._start._y)
+        and not (intersection_x == edge2._end._x and intersection_y == edge2._end._y)
     ):
         return True
     return False
@@ -126,7 +164,7 @@ class Polygon:
 
         self.vertices.append(point)
 
-        # Add an edge from the new point back to the starting point
+        # Add an edge from the new point back to the _starting point
         if len(self.vertices) >= 2:
             edge = Edge(point, self.vertices[0])
             self.edges.append(edge)
@@ -178,8 +216,8 @@ class Polygon:
             
 
     def __str__(self):
-        vertices_str = ', '.join([f"({point.x}, {point.y})" for point in self.vertices])
-        edges_str = ', '.join([f"({edge.start.x}, {edge.start.y}) -> ({edge.end.x}, {edge.end.y})" for edge in self.edges])
+        vertices_str = ', '.join([f"({point._x}, {point._y})" for point in self.vertices])
+        edges_str = ', '.join([f"({edge._start._x}, {edge._start._y}) -> ({edge._end._x}, {edge._end._y})" for edge in self.edges])
         return f"Vertices: [{vertices_str}]\nEdges: [{edges_str}]"
 
 if __name__ == '__main__':
@@ -197,7 +235,7 @@ if __name__ == '__main__':
     edge2 = Edge(Point(4.0, 1.5) , Point(3.0,3.0))
     edge3 = Edge(Point(4.0, 1.5) , Point(3.0,3.0))
 
-
+    p = edge2.start()
     print(doEdgesIntersect(edge1, edge2))
     plotEdges(edge1, edge2)
 
