@@ -2,10 +2,11 @@ from UtilityFunctions import generatePoints
 from polygon import Point, Polygon, Edge, doEdgesIntersect, plotPolygon
 from collections import deque
 import time 
+import matplotlib.pyplot as plt 
 
-# points = generatePoints(10)
+points = generatePoints(20)
 
-points = [Point(0,0), Point(5,2), Point(4,7), Point(8,10) , Point(3,2), Point(7,3), Point(1,10)]
+# points = [Point(0,0), Point(5,2), Point(4,7), Point(8,10) , Point(3,2), Point(7,3), Point(1,10)]
 
 
 class incrementalAlgorithm:
@@ -21,7 +22,26 @@ class incrementalAlgorithm:
         self.convexHull.addPoint(self.points[2])
         self.convexHull.addPoint(self.points[1])
 
-        plotPolygon(self.convexHull, self.points)
+        self.figure, self.ax = plt.subplots()
+        self.plotPoints(self.points)
+        self.plotPolygon(self.convexHull)
+        plt.show(block=False)  # Show the plot without blocking
+
+    def plotPoints(self, points):
+        x = [point._x for point in points]
+        y = [point._y for point in points]
+        self.ax.plot(x, y, marker='o', color='r', linestyle='')
+
+    def plotPolygon(self, polygon):
+        x = [point._x for point in polygon.getVertices()]
+        y = [point._y for point in polygon.getVertices()]
+        x.append(x[0])  # Close the polygon
+        y.append(y[0])
+        self.ax.clear()
+        self.plotPoints(self.points)  # Plot points continuously
+        self.ax.plot(x, y, marker='o', linestyle='-', color='b')
+        self.ax.set_aspect('equal', adjustable='datalim')
+        self.figure.canvas.flush_events()  # Update the plot
 
     def findRedEdges(self, prev_poimt, new_point):
 
@@ -91,10 +111,13 @@ class incrementalAlgorithm:
             print(f'start index : {purple_start_index + 1} , end index : {purple_end_index}')
             for i in range(purple_start_index + 1, purple_end_index):
                 self.convexHull.removeVertice(self.convexHull.getVertices()[i])
-            plotPolygon(self.convexHull, self.points)
+            # plotPolygon(self.convexHull, self.points)
             self.convexHull.addPointAtIndex(self.points[index], purple_start_index + 1)
 
-            plotPolygon(self.convexHull, self.points)
+            self.plotPolygon(self.convexHull)
+            plt.pause(0.1)  # Pause briefly to update the plot
+
+        plotPolygon(self.convexHull, self.points)
         
 
 
