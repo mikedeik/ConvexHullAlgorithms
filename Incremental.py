@@ -3,7 +3,9 @@ from polygon import Point, Polygon, Edge, doEdgesIntersect, plotPolygon
 from collections import deque
 import time 
 
-points = generatePoints(10)
+# points = generatePoints(10)
+
+points = [Point(0,0), Point(5,2), Point(4,7), Point(8,10) , Point(3,2), Point(7,3), Point(1,10)]
 
 
 class incrementalAlgorithm:
@@ -12,8 +14,12 @@ class incrementalAlgorithm:
         self.points = points
         self.convexHull = Polygon()
 
-        for i in range(3):
-            self.convexHull.addPoint(self.points[i])
+        # for i in range(3):
+        #     self.convexHull.addPoint(self.points[i])
+
+        self.convexHull.addPoint(self.points[0])
+        self.convexHull.addPoint(self.points[2])
+        self.convexHull.addPoint(self.points[1])
 
         plotPolygon(self.convexHull, self.points)
 
@@ -43,7 +49,7 @@ class incrementalAlgorithm:
             intersection = False
             for edge in self.convexHull.getEdges():
                 
-                if edge == left_edge or edge == right_edge or edge == edge_to_check:
+                if edge == edge_to_check:
                     continue
 
                 if doEdgesIntersect(edge, left_edge) or doEdgesIntersect(edge, right_edge):
@@ -63,10 +69,12 @@ class incrementalAlgorithm:
                     queue.append(neighbor_index)
                     visited[neighbor_index] = True
 
-        
+        print(redEdges)
+        print(self.convexHull.getEdges())
         purple_start = self.convexHull.getEdges()[min(redEdges)].start()
         purple_end = self.convexHull.getEdges()[max(redEdges)].end()
 
+        print(f'{purple_start} ==== {purple_end}')
         return purple_start, purple_end
         # return redEdges
 
@@ -80,11 +88,11 @@ class incrementalAlgorithm:
 
             purple_start_index = self.convexHull.getVertices().index(purple_start)
             purple_end_index = self.convexHull.getVertices().index(purple_end)
-            print(f'start index : {purple_start_index + 1} , end index : {purple_end_index - 1}')
+            print(f'start index : {purple_start_index + 1} , end index : {purple_end_index}')
             for i in range(purple_start_index + 1, purple_end_index):
                 self.convexHull.removeVertice(self.convexHull.getVertices()[i])
-
-            self.convexHull.addPointAtIndex(self.points[index], purple_end_index)
+            plotPolygon(self.convexHull, self.points)
+            self.convexHull.addPointAtIndex(self.points[index], purple_start_index + 1)
 
             plotPolygon(self.convexHull, self.points)
         
