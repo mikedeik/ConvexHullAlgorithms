@@ -47,7 +47,7 @@ class incrementalAlgorithm:
 
         purple_start: Point = None
         purple_end: Point = None
-        
+        # change user
         # index of the previous point
         index = self.convexHull.getVertices().index(prev_poimt)
         
