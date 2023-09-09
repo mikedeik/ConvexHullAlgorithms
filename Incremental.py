@@ -4,7 +4,7 @@ from collections import deque
 import time 
 import matplotlib.pyplot as plt 
 
-points = generatePoints(100)
+
 
 # points = [Point(0,0), Point(5,2), Point(4,7), Point(8,10) , Point(3,2), Point(7,3), Point(1,10)]
 
@@ -18,7 +18,14 @@ class incrementalAlgorithm:
         # for i in range(3):
         #     self.convexHull.addPoint(self.points[i])
 
-        if not ccw(self.points[0], self.points[1], self.points[2]):
+        # Calculate the area of the first triangle
+        area = (
+            (self.points[1]._x - self.points[0]._x) * (self.points[2]._y - self.points[0]._y) -
+            (self.points[2]._x - self.points[0]._x) * (self.points[1]._y - self.points[0]._y)
+        )
+
+        # if not ccw(self.points[0], self.points[1], self.points[2]):
+        if area > 0 :
             # Add the first three points
             self.convexHull.addPoint(self.points[0])
             self.convexHull.addPoint(self.points[1])
@@ -28,6 +35,9 @@ class incrementalAlgorithm:
             self.convexHull.addPoint(self.points[0])
             self.convexHull.addPoint(self.points[2])
             self.convexHull.addPoint(self.points[1])
+
+        print(self.convexHull.getVertices())
+        
 
         self.figure, self.ax = plt.subplots()
         self.plotPoints(self.points)
@@ -122,7 +132,7 @@ class incrementalAlgorithm:
     def createConvexHull(self):
 
         for index in range(3, len(self.points)):
-            print(f"=========== Iteration {index} =================")
+            print(f"=========== Iteration {index - 2} =================")
             purple_start, purple_end = self.findRedEdges(self.points[index - 1], self.points[index])
 
             purple_start_index = self.convexHull.getVertices().index(purple_start)
@@ -135,24 +145,23 @@ class incrementalAlgorithm:
             print(f'new start index : {purple_start_index + 1} ,new end index : {purple_end_index}')
             for i in range(purple_start_index + 1, purple_end_index):
                 print(f"removing point at position {i}")
+                print(f"point to be removed {self.convexHull.getVertices()[purple_start_index + 1]}")
                 self.convexHull.removeVertice(self.convexHull.getVertices()[purple_start_index + 1])
 
-            # plotPolygon(self.convexHull, self.points)
-            # before adding 
-            print(self.convexHull.getVertices())
-            print(self.convexHull.getEdges())
 
-            self.convexHull.addPointAtIndex(self.points[index], purple_start_index + 1)
+            if len(self.convexHull.getVertices()) == 2 and not ccw(self.convexHull.getVertices()[0], self.convexHull.getVertices()[1], self.points[index]):
+                print("this is the case")
+                self.convexHull.addPoint(self.points[index])
+            else:
+                self.convexHull.addPointAtIndex(self.points[index], purple_start_index + 1)
 
-            # after adding 
-            print(self.convexHull.getVertices())
-            print(self.convexHull.getEdges())
             print("==============================")
-            # if index == 4 :
-            #     break
-
+            print(self.convexHull.getVertices())
             self.plotPolygon(self.convexHull)
-            plt.pause(0.05)  # Pause briefly to update the plot
+            plt.pause(0.01)  # Pause briefly to update the plot
+            # plt.pause(2) 
+            # if index == 4: 
+            #     break
             
             
         plotPolygon(self.convexHull, self.points)
@@ -164,22 +173,24 @@ class incrementalAlgorithm:
         return self.convexHull
 
 
+if __name__ == '__main__':
+
+    for i in range(20):
+        points = generatePoints(100)
+        points.sort()
+
+        # points = []
+        # items = [(-100,-35), (-99,37), (-98,10), (-95,74), (-93,-30), (-91,-69), (-89,48), (-88,-39), (-86,-15), (-84,68), (-83,-43), (-83,24), (-82,-50), (-81,-89), (-81,1), (-81,68), (-80,-87), (-80,10), (-80,61), (-80,62), (-80,95), (-79,-16), (-79,85), (-75,95), (-69,-55), (-67,-59), (-65,37), (-64,92), (-63,-80), (-61,34), (-54,-52), (-51,44), (-49,-19), (-48,44), (-43,-89), (-41,-57), (-41,-38), (-38,-4), (-31,71), (-27,84), (-26,7), (-21,-21), (-17,86), (-15,94), (-8,-86), (-8,-81), (-7,-23), (-3,40), (-1,8), (1,-83), (1,-46), (2,5), (4,36), (6,-84), (9,-87), (11,34), (12,82), (14,74), (15,88), (17,-29), (21,99), (22,-31), (24,100), (27,36), (35,59), (36,-68), (37,18), (38,-97), (38,-53), (39,-52), (40,-20), (43,-85), (49,-65), (49,-51), (49,92), (50,96), (57,-72), (57,-23), (59,73), (61,-33), (61,1), (64,99), (66,-20), (70,3), (70,14), (76,69), (77,0), (80,-67), (81,-10), (83,-86), (84,-47), (84,62), (85,94), (86,36), (87,5), (88,96), (94,-54), (95,85), (98,-36)]
+        # for item in items:
+        #     points.append(Point(item[0], item[1]))
+
+        print(points)
+
+        CH = incrementalAlgorithm(points)
+
+        CH.createConvexHull()
 
 
-points.sort()
-
-# points = []
-# items = [(-99,-29), (-97,-42), (-96,-31), (-94,-96), (-78,-76), (-77,-22), (-77,96), (-74,-7), (-73,47), (-73,71), (-71,-10), (-70,93), (-67,66), (-63,-65), (-50,54), (-43,32), (-38,-72), (-28,61), (-26,60), (-25,-9), (-13,-9), (-12,-45), (-12,66), (-5,96), (-1,-88), (2,-50), (4,70), (11,54), (16,-78), (21,-67), (23,-84), (30,9), (34,12), (48,-48), (50,-62), (50,-45), (53,-76), (56,-48), (56,-26), (62,56), (65,40), (66,99), (68,-96), (70,-5), (71,-72), (74,-89), (76,-65), (87,77), (87,87), (96,-65)]
-# for item in items:
-#     points.append(Point(item[0], item[1]))
-
-print(points)
-
-CH = incrementalAlgorithm(points)
-
-CH.createConvexHull()
-
-
-print(CH.getConvexHull())
+        print(CH.getConvexHull())
 
 # print(CH)

@@ -107,7 +107,9 @@ def plotPolygon(polygon, points):
     plt.show()
 
 def ccw(A: Point, B: Point, C: Point):
-    return (C._y-A._y) * (B._x-A._x) > (B._y-A._y) * (C._x-A._x)
+    epsilon = 1e-6  # Adjust the epsilon value as needed
+    return (C._y - A._y) * (B._x - A._x) > (B._y - A._y) * (C._x - A._x) + epsilon
+
 
 # Return true if line segments edge1 and edge2 intersect
 def intersect(edge1: Edge, edge2: Edge):
