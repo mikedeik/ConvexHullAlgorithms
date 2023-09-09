@@ -1,10 +1,10 @@
 from UtilityFunctions import generatePoints
-from polygon import Point, Polygon, Edge, doEdgesIntersect, plotPolygon
+from polygon import Point, Polygon, Edge, doEdgesIntersect, plotPolygon, intersect, ccw
 from collections import deque
 import time 
 import matplotlib.pyplot as plt 
 
-points = generatePoints(20)
+points = generatePoints(100)
 
 # points = [Point(0,0), Point(5,2), Point(4,7), Point(8,10) , Point(3,2), Point(7,3), Point(1,10)]
 
@@ -18,9 +18,16 @@ class incrementalAlgorithm:
         # for i in range(3):
         #     self.convexHull.addPoint(self.points[i])
 
-        self.convexHull.addPoint(self.points[0])
-        self.convexHull.addPoint(self.points[2])
-        self.convexHull.addPoint(self.points[1])
+        if not ccw(self.points[0], self.points[1], self.points[2]):
+            # Add the first three points
+            self.convexHull.addPoint(self.points[0])
+            self.convexHull.addPoint(self.points[1])
+            self.convexHull.addPoint(self.points[2])
+        else :
+            # Add the first three points
+            self.convexHull.addPoint(self.points[0])
+            self.convexHull.addPoint(self.points[2])
+            self.convexHull.addPoint(self.points[1])
 
         self.figure, self.ax = plt.subplots()
         self.plotPoints(self.points)
@@ -66,20 +73,29 @@ class incrementalAlgorithm:
             left_edge = Edge(edge_to_check.start(), new_point)
             right_edge = Edge(new_point, edge_to_check.end())
 
+            
+
             intersection = False
             for edge in self.convexHull.getEdges():
                 
                 if edge == edge_to_check:
                     continue
 
-                if doEdgesIntersect(edge, left_edge) or doEdgesIntersect(edge, right_edge):
+                if new_point == Point(-27,27):
+                    print(f'checking edge {edge} with edge {left_edge} : {doEdgesIntersect(edge, left_edge)}')
+                    print(f'checking edge {edge} with edge {right_edge} : {doEdgesIntersect(edge, right_edge)}')
+                    print("+++++++")
+                
+                if intersect(edge, left_edge) or intersect(edge, right_edge):
                     intersection = True
                     break
             
             if not intersection:
+                if new_point == Point(-27,27):
+                    print(f'adding edge with index {current_index}')
                 redEdges.append(current_index)
             
-            # print(redEdges)
+            # print(f'current red edges {redEdges})
 
             # time.sleep(3)
 
@@ -91,6 +107,9 @@ class incrementalAlgorithm:
 
         print(redEdges)
         print(self.convexHull.getEdges())
+
+        if len(redEdges) == len(self.convexHull.getEdges()):
+            return self.convexHull.getVertices()[0] , self.convexHull.getVertices()[-1]
         purple_start = self.convexHull.getEdges()[min(redEdges)].start()
         purple_end = self.convexHull.getEdges()[max(redEdges)].end()
 
@@ -103,20 +122,39 @@ class incrementalAlgorithm:
     def createConvexHull(self):
 
         for index in range(3, len(self.points)):
-
+            print(f"=========== Iteration {index} =================")
             purple_start, purple_end = self.findRedEdges(self.points[index - 1], self.points[index])
 
             purple_start_index = self.convexHull.getVertices().index(purple_start)
             purple_end_index = self.convexHull.getVertices().index(purple_end)
             print(f'start index : {purple_start_index + 1} , end index : {purple_end_index}')
+            
+            if purple_end_index == 0:
+                purple_end_index = len(self.convexHull.getVertices())
+
+            print(f'new start index : {purple_start_index + 1} ,new end index : {purple_end_index}')
             for i in range(purple_start_index + 1, purple_end_index):
-                self.convexHull.removeVertice(self.convexHull.getVertices()[i])
+                print(f"removing point at position {i}")
+                self.convexHull.removeVertice(self.convexHull.getVertices()[purple_start_index + 1])
+
             # plotPolygon(self.convexHull, self.points)
+            # before adding 
+            print(self.convexHull.getVertices())
+            print(self.convexHull.getEdges())
+
             self.convexHull.addPointAtIndex(self.points[index], purple_start_index + 1)
 
-            self.plotPolygon(self.convexHull)
-            plt.pause(0.1)  # Pause briefly to update the plot
+            # after adding 
+            print(self.convexHull.getVertices())
+            print(self.convexHull.getEdges())
+            print("==============================")
+            # if index == 4 :
+            #     break
 
+            self.plotPolygon(self.convexHull)
+            plt.pause(0.05)  # Pause briefly to update the plot
+            
+            
         plotPolygon(self.convexHull, self.points)
         
 
@@ -128,7 +166,13 @@ class incrementalAlgorithm:
 
 
 
-sorted_points = points.sort()
+points.sort()
+
+# points = []
+# items = [(-99,-29), (-97,-42), (-96,-31), (-94,-96), (-78,-76), (-77,-22), (-77,96), (-74,-7), (-73,47), (-73,71), (-71,-10), (-70,93), (-67,66), (-63,-65), (-50,54), (-43,32), (-38,-72), (-28,61), (-26,60), (-25,-9), (-13,-9), (-12,-45), (-12,66), (-5,96), (-1,-88), (2,-50), (4,70), (11,54), (16,-78), (21,-67), (23,-84), (30,9), (34,12), (48,-48), (50,-62), (50,-45), (53,-76), (56,-48), (56,-26), (62,56), (65,40), (66,99), (68,-96), (70,-5), (71,-72), (74,-89), (76,-65), (87,77), (87,87), (96,-65)]
+# for item in items:
+#     points.append(Point(item[0], item[1]))
+
 print(points)
 
 CH = incrementalAlgorithm(points)

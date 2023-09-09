@@ -106,10 +106,33 @@ def plotPolygon(polygon, points):
     # Show the plot
     plt.show()
 
+def ccw(A: Point, B: Point, C: Point):
+    return (C._y-A._y) * (B._x-A._x) > (B._y-A._y) * (C._x-A._x)
+
+# Return true if line segments edge1 and edge2 intersect
+def intersect(edge1: Edge, edge2: Edge):
+    start1, end1 = edge1.start(), edge1.end()
+    start2, end2 = edge2.start(), edge2.end()
+
+    # Check if one endpoint of one segment is equal to an endpoint of the other segment
+    if start1 == start2 or start1 == end2 or end1 == start2 or end1 == end2:
+        # Check if they are not extensions of each other
+        if not (start1 == end2 and end1 == start2):
+            return False
+
+    return (
+        ccw(start1, start2, end2) != ccw(end1, start2, end2) and
+        ccw(start1, end1, start2) != ccw(start1, end1, end2)
+    )
+
 def doEdgesIntersect(edge1, edge2):
     # Calculate the slopes of the edges
     slope1 = (edge1._end._y - edge1._start._y) / (edge1._end._x - edge1._start._x) if edge1._end._x != edge1._start._x else float('inf')
     slope2 = (edge2._end._y - edge2._start._y) / (edge2._end._x - edge2._start._x) if edge2._end._x != edge2._start._x else float('inf')
+
+    if edge1 == Edge(Point(-29,-80), Point(-29,98)) and edge2  == Edge(Point(-27,27), Point(-83,74)):
+        print(slope1)
+        print(slope2)
 
     # Check if the slopes are equal (parallel lines)
     if slope1 == slope2:
@@ -213,6 +236,7 @@ class Polygon:
             next_index = index % len(self.vertices)
             edge = Edge(self.vertices[prev_index], self.vertices[next_index])
             self.edges.insert(prev_index, edge)
+        print("is the error here?")
             
 
     def __str__(self):
