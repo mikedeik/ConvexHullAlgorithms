@@ -100,7 +100,7 @@ def plotPolygon(polygon, points):
     plt.xlabel('X')
     plt.ylabel('Y')
     plt.title('Polygon with Points and Edges')
-    plt.legend()
+    # plt.legend()
     plt.grid(True)
 
     # Show the plot
