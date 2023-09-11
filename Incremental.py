@@ -11,9 +11,10 @@ import matplotlib.pyplot as plt
 
 class incrementalAlgorithm:
 
-    def __init__(self, points, visualize = False) -> None:
+    def __init__(self, points: list, visualize = False) -> None:
         self.visualize = visualize
         self.points = points
+        self.points.sort()
         self.convexHull = Polygon()
 
 

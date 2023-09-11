@@ -107,7 +107,7 @@ def plotPolygon(polygon, points):
     plt.show()
 
 def ccw(A: Point, B: Point, C: Point):
-    return ((B._x * C._y - C._x * B._y) - (C._y * A._x - C._x * A._y) + (A._x * B._y - A._y * B._x)) > 0
+    return ((B._x * C._y - C._x * B._y) - (C._y * A._x - C._x * A._y) + (A._x * B._y - A._y * B._x)) >= 0
 
 
 # Return true if line segments edge1 and edge2 intersect

@@ -1,4 +1,5 @@
 from polygon import Point, Polygon, Edge, plotPolygon, ccw
+from UtilityFunctions import generatePoints, generate_unique_points
 
 def divide_and_conquer_convex_hull(points):
     if len(points) <= 3:
@@ -54,7 +55,7 @@ def merge_convex_hulls(left_hull: Polygon, right_hull: Polygon):
         if not changed:
             break
 
-    topEdge = (left_max, right_min)
+    bottomEdge = Edge(left_max, right_min)
         
     
 
@@ -65,9 +66,11 @@ def merge_convex_hulls(left_hull: Polygon, right_hull: Polygon):
             next_left = left_hull.getNextPoint(left_max)
             if not next_left:
                 break
-            if ccw(left_max, right_min, next_left):
-                left_max = next_left
-                changed = True
+            for left_ch_point in left_hull.getVertices():
+
+                if ccw(left_max, right_min, next_left):
+                    left_max = next_left
+                    changed = True
             else:
                 break
         while True:
@@ -83,15 +86,45 @@ def merge_convex_hulls(left_hull: Polygon, right_hull: Polygon):
         if not changed:
             break
         
-    bottomEdge = (left_max, right_min)
+    topEdge = Edge(left_max, right_min)
     print(topEdge)
     print(bottomEdge)
 
     # Merge the two convex hulls using the upper and lower tangents
     merged_hull = Polygon()
-    merged_hull.vertices = left_hull.vertices + right_hull.vertices
-    merged_hull.edges = left_hull.edges + right_hull.edges
 
+    left_stop_index = left_hull.getVertices().index(bottomEdge.start())
+    left_start_index = left_hull.getVertices().index(topEdge.start())
+
+    right_start_index = right_hull.getVertices().index(bottomEdge.end())
+    right_stop_index = right_hull.getVertices().index(topEdge.end())
+
+    for point in left_hull.getVertices()[:left_stop_index+1]:
+        merged_hull.addPoint(point)
+    
+    for point in right_hull.getVertices()[right_start_index: right_stop_index + 1]:
+        merged_hull.addPoint(point)
+
+    for point in left_hull.getVertices()[left_start_index:]:
+        merged_hull.addPoint(point)
+
+    # for left_point in left_hull.getVertices():
+        
+    #     merged_hull.addPoint(left_point)
+    #     if left_point == bottomEdge.start():
+    #         for right_point in right_hull.getVertices():
+    #             if right_point != bottomEdge.end():
+    #                 continue
+    #             merged_hull.addPoint(right_point)
+
+    #             if right_point == topEdge.end():
+    #                 break
+        
+    #     if left_point != topEdge.start():
+    #         continue
+    #     merged_hull.addPoint(left_point)
+  
+    # plotPolygon(merged_hull, points)
     # merged_hull.addEdge(Edge(left_max, right_min))
     # merged_hull.addEdge(Edge(right_min, left_max))
 
@@ -99,14 +132,7 @@ def merge_convex_hulls(left_hull: Polygon, right_hull: Polygon):
 
 if __name__ == '__main__':
     # Example usage:
-    points = [
-        Point(1, 1),
-        Point(2, 5),
-        Point(3, 3),
-        Point(0, 2),
-        Point(8, 0),
-        Point(4, 1),
-    ]
+    points = generate_unique_points(20, -100, 100, -100, 100)
 
     convex_hull = divide_and_conquer_convex_hull(points)
     print("Convex Hull:")
