@@ -107,8 +107,7 @@ def plotPolygon(polygon, points):
     plt.show()
 
 def ccw(A: Point, B: Point, C: Point):
-    epsilon = 1e-6  # Adjust the epsilon value as needed
-    return (C._y - A._y) * (B._x - A._x) > (B._y - A._y) * (C._x - A._x) + epsilon
+    return ((B._x * C._y - C._x * B._y) - (C._y * A._x - C._x * A._y) + (A._x * B._y - A._y * B._x)) > 0
 
 
 # Return true if line segments edge1 and edge2 intersect
@@ -126,43 +125,6 @@ def intersect(edge1: Edge, edge2: Edge):
         ccw(start1, start2, end2) != ccw(end1, start2, end2) and
         ccw(start1, end1, start2) != ccw(start1, end1, end2)
     )
-
-def doEdgesIntersect(edge1, edge2):
-    # Calculate the slopes of the edges
-    slope1 = (edge1._end._y - edge1._start._y) / (edge1._end._x - edge1._start._x) if edge1._end._x != edge1._start._x else float('inf')
-    slope2 = (edge2._end._y - edge2._start._y) / (edge2._end._x - edge2._start._x) if edge2._end._x != edge2._start._x else float('inf')
-
-    if edge1 == Edge(Point(-29,-80), Point(-29,98)) and edge2  == Edge(Point(-27,27), Point(-83,74)):
-        print(slope1)
-        print(slope2)
-
-    # Check if the slopes are equal (parallel lines)
-    if slope1 == slope2:
-        return False
-
-    # Calculate the intersection point
-    intersection_x = (
-        (edge2._start._y - edge1._start._y) + (slope1 * edge1._start._x - slope2 * edge2._start._x)
-    ) / (slope1 - slope2)
-
-    intersection_y = slope1 * (intersection_x - edge1._start._x) + edge1._start._y
-
-    # Check if the intersection point lies within both line segments
-    def isBetween(a, b, c):
-        return a <= b <= c or c <= b <= a
-
-    if (
-        isBetween(edge1._start._x, intersection_x, edge1._end._x)
-        and isBetween(edge1._start._y, intersection_y, edge1._end._y)
-        and isBetween(edge2._start._x, intersection_x, edge2._end._x)
-        and isBetween(edge2._start._y, intersection_y, edge2._end._y)
-        and not (intersection_x == edge1._start._x and intersection_y == edge1._start._y)
-        and not (intersection_x == edge1._end._x and intersection_y == edge1._end._y)
-        and not (intersection_x == edge2._start._x and intersection_y == edge2._start._y)
-        and not (intersection_x == edge2._end._x and intersection_y == edge2._end._y)
-    ):
-        return True
-    return False
 
 
 class Polygon:
@@ -238,8 +200,21 @@ class Polygon:
             next_index = index % len(self.vertices)
             edge = Edge(self.vertices[prev_index], self.vertices[next_index])
             self.edges.insert(prev_index, edge)
-        print("is the error here?")
-            
+
+    def getPreviousPoint(self, point: Point) -> Point:
+        
+        point_index = self.vertices.index(point)
+        if point_index == 0:
+            return None
+
+        return self.vertices[point_index - 1]
+
+    def getNextPoint(self, point: Point) -> Point:
+        
+        point_index = self.vertices.index(point)
+        if point_index == len(self.vertices) - 1:
+            return None
+        return self.vertices[point_index + 1]            
 
     def __str__(self):
         vertices_str = ', '.join([f"({point._x}, {point._y})" for point in self.vertices])
@@ -262,7 +237,7 @@ if __name__ == '__main__':
     edge3 = Edge(Point(4.0, 1.5) , Point(3.0,3.0))
 
     p = edge2.start()
-    print(doEdgesIntersect(edge1, edge2))
+    # print(doEdgesIntersect(edge1, edge2))
     plotEdges(edge1, edge2)
 
     print(polygon)

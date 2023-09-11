@@ -1,5 +1,5 @@
 from UtilityFunctions import generatePoints
-from polygon import Point, Polygon, Edge, doEdgesIntersect, plotPolygon, intersect, ccw
+from polygon import Point, Polygon, Edge, plotPolygon, intersect, ccw
 from collections import deque
 import time 
 import matplotlib.pyplot as plt 
@@ -11,12 +11,11 @@ import matplotlib.pyplot as plt
 
 class incrementalAlgorithm:
 
-    def __init__(self, points) -> None:
+    def __init__(self, points, visualize = False) -> None:
+        self.visualize = visualize
         self.points = points
         self.convexHull = Polygon()
 
-        # for i in range(3):
-        #     self.convexHull.addPoint(self.points[i])
 
         # Calculate the area of the first triangle
         area = (
@@ -36,13 +35,12 @@ class incrementalAlgorithm:
             self.convexHull.addPoint(self.points[2])
             self.convexHull.addPoint(self.points[1])
 
-        print(self.convexHull.getVertices())
         
-
-        self.figure, self.ax = plt.subplots()
-        self.plotPoints(self.points)
-        self.plotPolygon(self.convexHull)
-        plt.show(block=False)  # Show the plot without blocking
+        if self.visualize:
+            self.figure, self.ax = plt.subplots()
+            self.plotPoints(self.points)
+            self.plotPolygon(self.convexHull)
+            plt.show(block=False)  # Show the plot without blocking
 
     def plotPoints(self, points):
         x = [point._x for point in points]
@@ -64,7 +62,6 @@ class incrementalAlgorithm:
 
         purple_start: Point = None
         purple_end: Point = None
-        # change user
         # index of the previous point
         index = self.convexHull.getVertices().index(prev_poimt)
         
@@ -91,23 +88,13 @@ class incrementalAlgorithm:
                 if edge == edge_to_check:
                     continue
 
-                if new_point == Point(-27,27):
-                    print(f'checking edge {edge} with edge {left_edge} : {doEdgesIntersect(edge, left_edge)}')
-                    print(f'checking edge {edge} with edge {right_edge} : {doEdgesIntersect(edge, right_edge)}')
-                    print("+++++++")
-                
                 if intersect(edge, left_edge) or intersect(edge, right_edge):
                     intersection = True
                     break
             
             if not intersection:
-                if new_point == Point(-27,27):
-                    print(f'adding edge with index {current_index}')
                 redEdges.append(current_index)
-            
-            # print(f'current red edges {redEdges})
 
-            # time.sleep(3)
 
             # Find neighbors (adjacent elements) and visit them
             for neighbor_index in [current_index - 1, current_index + 1]:
@@ -115,15 +102,12 @@ class incrementalAlgorithm:
                     queue.append(neighbor_index)
                     visited[neighbor_index] = True
 
-        print(redEdges)
-        print(self.convexHull.getEdges())
 
         if len(redEdges) == len(self.convexHull.getEdges()):
             return self.convexHull.getVertices()[0] , self.convexHull.getVertices()[-1]
         purple_start = self.convexHull.getEdges()[min(redEdges)].start()
         purple_end = self.convexHull.getEdges()[max(redEdges)].end()
 
-        print(f'{purple_start} ==== {purple_end}')
         return purple_start, purple_end
         # return redEdges
 
@@ -132,39 +116,31 @@ class incrementalAlgorithm:
     def createConvexHull(self):
 
         for index in range(3, len(self.points)):
-            print(f"=========== Iteration {index - 2} =================")
             purple_start, purple_end = self.findRedEdges(self.points[index - 1], self.points[index])
 
             purple_start_index = self.convexHull.getVertices().index(purple_start)
             purple_end_index = self.convexHull.getVertices().index(purple_end)
-            print(f'start index : {purple_start_index + 1} , end index : {purple_end_index}')
             
             if purple_end_index == 0:
                 purple_end_index = len(self.convexHull.getVertices())
 
-            print(f'new start index : {purple_start_index + 1} ,new end index : {purple_end_index}')
             for i in range(purple_start_index + 1, purple_end_index):
-                print(f"removing point at position {i}")
-                print(f"point to be removed {self.convexHull.getVertices()[purple_start_index + 1]}")
                 self.convexHull.removeVertice(self.convexHull.getVertices()[purple_start_index + 1])
 
 
             if len(self.convexHull.getVertices()) == 2 and not ccw(self.convexHull.getVertices()[0], self.convexHull.getVertices()[1], self.points[index]):
-                print("this is the case")
+
                 self.convexHull.addPoint(self.points[index])
             else:
                 self.convexHull.addPointAtIndex(self.points[index], purple_start_index + 1)
 
-            print("==============================")
-            print(self.convexHull.getVertices())
-            self.plotPolygon(self.convexHull)
-            plt.pause(0.01)  # Pause briefly to update the plot
-            # plt.pause(2) 
-            # if index == 4: 
-            #     break
+            if self.visualize:
+                self.plotPolygon(self.convexHull)
+                plt.pause(0.01)  # Pause briefly to update the plot
+
             
-            
-        plotPolygon(self.convexHull, self.points)
+        if self.visualize:   
+            plotPolygon(self.convexHull, self.points)
         
 
 
@@ -175,7 +151,7 @@ class incrementalAlgorithm:
 
 if __name__ == '__main__':
 
-    for i in range(20):
+    for i in range(1):
         points = generatePoints(100)
         points.sort()
 
@@ -184,9 +160,8 @@ if __name__ == '__main__':
         # for item in items:
         #     points.append(Point(item[0], item[1]))
 
-        print(points)
 
-        CH = incrementalAlgorithm(points)
+        CH = incrementalAlgorithm(points, True)
 
         CH.createConvexHull()
 
