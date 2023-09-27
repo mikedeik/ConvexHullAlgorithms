@@ -19,6 +19,18 @@ def QuickHull(points):
 
     return hull
 
+def getNpArrayFromCH(points):
+     # Compute the convex hull
+    hull = ConvexHull(points)
+
+     # Get the convex hull points
+    convex_hull_points = []
+    for vertex in hull.vertices:
+        convex_hull_points.append((points[vertex][0], points[vertex][1]))
+
+    return np.array(convex_hull_points, dtype=np.int32)
+        
+
 # Visualize the convex hull (optional)
 def plotQuickHull(points, hull):
     

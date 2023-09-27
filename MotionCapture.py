@@ -1,80 +1,56 @@
 import cv2
 import numpy as np
-from GiftWrapping import GiftWrap  # Replace with your convex hull algorithm
+from QuickHull import getNpArrayFromCH  # Replace with your convex hull algorithm
 
-def detect_hand(frame, net):
-    blob = cv2.dnn.blobFromImage(frame, 1.0, (300, 300), (127.5, 127.5, 127.5), swapRB=True, crop=False)
-    net.setInput(blob)
-    detections = net.forward()
-    
-    # Initialize lists for hand bounding boxes and hand points
-    hand_boxes = []
-    hand_points = []
+def find_animal(image_path):
+    # Load the image
+    image = cv2.imread(image_path)
 
-    for i in range(detections.shape[2]):
-        confidence = detections[0, 0, i, 2]
-        if confidence > 0.5:  # Confidence threshold
-            class_id = int(detections[0, 0, i, 1])
-            if class_id == 0:  # Class 0 represents hands in the pre-trained model
-                box = detections[0, 0, i, 3:7] * np.array([frame.shape[1], frame.shape[0], frame.shape[1], frame.shape[0]])
-                (startX, startY, endX, endY) = box.astype("int")
-                hand_boxes.append((startX, startY, endX, endY))
-                
-                # Extract hand region from the frame
-                hand = frame[startY:endY, startX:endX]
-                hand_points.extend(get_hand_contour(hand))
+    # Convert the image to the HSV color space
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-    return hand_boxes, hand_points
+    # Define the lower and upper bounds for the color range of the animal (adjust as needed)
+    lower_color = np.array([5, 50, 50])  # Lower bound for orange color
+    upper_color = np.array([15, 255, 255])  # Upper bound for orange color
 
-def get_hand_contour(hand):
-    # Preprocess hand region (grayscale, thresholding, etc.)
-    gray = cv2.cvtColor(hand, cv2.COLOR_BGR2GRAY)
-    _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY)
-    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # Create a mask for the specified color range
+    mask = cv2.inRange(hsv, lower_color, upper_color)
 
-    # Find the largest contour (assuming it's the hand)
+    # Find contours in the mask
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    # Find the largest contour (assuming it represents the animal)
     if contours:
         largest_contour = max(contours, key=cv2.contourArea)
-        return [tuple(point[0]) for point in largest_contour]
+        print(len(largest_contour))
+
+        # Compute the convex hull of the animal contour
+        convex_hull = getNpArrayFromCH(points=[tuple(point[0]) for point in largest_contour])
+
+        # Create a binary mask for the animal
+        animal_mask = np.zeros_like(image)
+        
+        cv2.fillPoly(animal_mask, [convex_hull], (255, 255, 255))
+
+        # Crop the animal region from the original image
+        cropped_animal = cv2.bitwise_and(image, animal_mask)
+
+        return cropped_animal
+
     else:
-        return []
+        return None
 
 def main():
-    # Load the pre-trained hand detection model
-    net = cv2.dnn.readNet('hand_detection_model.pb', 'hand_detection_model.pbtxt')
+    image_path = 'test2.jpeg'  # Replace with the path to your animal image
+    cropped_animal = find_animal(image_path)
 
-    # Initialize the camera (usually, 0 is the default camera)
-    cap = cv2.VideoCapture(0)
-
-    while True:
-        # Read a frame from the camera
-        ret, frame = cap.read()
-        if not ret:
-            break
-
-        # Detect hands and get hand contour points
-        hand_boxes, hand_points = detect_hand(frame, net)
-
-        # Draw bounding boxes around detected hands
-        for (startX, startY, endX, endY) in hand_boxes:
-            cv2.rectangle(frame, (startX, startY), (endX, endY), (0, 255, 0), 2)
-
-        # Compute the convex hull of the hand contour points
-        convex_hull = GiftWrap(points=hand_points)
-
-        # Draw the convex hull on the frame
-        cv2.drawContours(frame, [convex_hull], 0, (0, 0, 255), 2)
-
-        # Display the frame with hand detection and convex hull
-        cv2.imshow('Motion Capture with Hand Detection', frame)
-
-        # Exit the loop when the 'q' key is pressed
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-
-    # Release the camera and close the OpenCV window
-    cap.release()
-    cv2.destroyAllWindows()
+    if cropped_animal is not None:
+        # Save the cropped animal region as a new image file
+        output_filename = 'newfile.jpeg'
+        cv2.imwrite(output_filename, cropped_animal)
+        print(f"Saved the cropped animal as '{output_filename}'")
+    else:
+        print("No animal contour found in the image.")
 
 if __name__ == '__main__':
     main()
