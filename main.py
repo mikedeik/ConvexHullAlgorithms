@@ -55,10 +55,11 @@ def main():
     elif algortihm == 'kdtree':
         np.random.seed(0)
         points = np.random.randint(-100, 101, size=(num_of_points, 2))
+        # need to change np array to tuples for KD Tree
         points = [tuple(point) for point in points]
         rect_min = (-50, -20)
         rect_max = (75, 25)
-        kd = KDTree(points)
+        kd = KDTree(points, visualize)
         inside_points = kd.points_inside_rectangle(rect_min, rect_max)
         print(inside_points)
     

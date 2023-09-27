@@ -17,6 +17,9 @@ class incrementalAlgorithm:
         self.points.sort()
         self.convexHull = Polygon()
 
+        # This is to create a gif of the incremental
+        self.frame_counter = 0
+
 
         # Calculate the area of the first triangle
         area = (
@@ -58,6 +61,9 @@ class incrementalAlgorithm:
         self.ax.plot(x, y, marker='o', linestyle='-', color='b')
         self.ax.set_aspect('equal', adjustable='datalim')
         self.figure.canvas.flush_events()  # Update the plot
+         # Save the current plot as an image (PNG)
+        plt.savefig(f'imageFrames/frame_{self.frame_counter:04d}.png')
+        self.frame_counter += 1
 
     def findRedEdges(self, prev_poimt, new_point):
 

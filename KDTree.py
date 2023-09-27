@@ -1,5 +1,6 @@
 import numpy as np
 from UtilityFunctions import generatePoints
+import matplotlib.pyplot as plt
 
 class KDNode:
     def __init__(self, point, left=None, right=None):
@@ -8,9 +9,11 @@ class KDNode:
         self.right = right
 
 class KDTree:
-    def __init__(self, points):
+    def __init__(self, points, visualize=False):
+        self.points = points
         self.k = len(points[0]) # Number of dimensions
         self.root = self.build(points)
+        self.visualize = visualize
 
     def build(self, points, depth=0):
         if not len(points):
@@ -49,7 +52,36 @@ class KDTree:
                 recursive_search(node.right, depth + 1)
 
         recursive_search(self.root)
+        if self.visualize:
+            self.plot_kd_tree_and_rectangle(inside_points, rect_min, rect_max)
+
         return inside_points
+    
+    def plot_kd_tree_and_rectangle(self, inside_points, rect_min, rect_max):
+    # Extract points from the KD tree
+        
+
+        # Plot KD tree points in blue
+        kd_tree_points_x, kd_tree_points_y = zip(*self.points)
+        plt.scatter(kd_tree_points_x, kd_tree_points_y, c='blue', label='KD Tree Points')
+    
+        # Plot points inside the rectangle in red
+        inside_points_x, inside_points_y = zip(*inside_points)
+        plt.scatter(inside_points_x, inside_points_y, c='red', label='Inside Rectangle')
+
+
+        # Plot the rectangle
+        plt.gca().add_patch(plt.Rectangle(rect_min, rect_max[0] - rect_min[0], rect_max[1] - rect_min[1], fill=False, color='green', linewidth=2, label='Rectangle'))
+
+        plt.xlabel('X-axis')
+        plt.ylabel('Y-axis')
+        plt.legend()
+        plt.title('KD Tree Points and Rectangle')
+        plt.grid(True)
+        plt.show()
+    
+
+
 
 if __name__ == '__main__':
 
