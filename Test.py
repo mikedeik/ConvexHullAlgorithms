@@ -3,8 +3,8 @@ import pygame
 from pygame.locals import *
 
 # Constants for the display
-WIDTH, HEIGHT = 800, 600
-MINIMAP_SIZE = 200
+WIDTH, HEIGHT = 500, 500
+MINIMAP_SIZE = 100
 ENEMY_RADIUS = 5
 
 # Initialize pygame
@@ -12,12 +12,16 @@ pygame.init()
 
 # Create the display window
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
+screen_center = (WIDTH // 2, HEIGHT // 2)  # Center of the screen
 pygame.display.set_caption("Minimap with Enemies")
 
 class Point:
     def __init__(self, x, y):
         self.x = x
         self.y = y
+
+    def __str__(self) -> str:
+        return f'({self.x},{self.y})'
 
 class KDNode:
     def __init__(self, point, left=None, right=None):
@@ -72,21 +76,44 @@ class KDTree:
         return points
 
 def generate_random_enemy():
-    return Point(random.uniform(-100, 100), random.uniform(-100, 100))
+    return Point(random.uniform(-200, 200), random.uniform(-200, 200))
 
-def draw_minimap(center, enemies, screen):
-    minimap_rect = pygame.Rect(WIDTH - MINIMAP_SIZE - 10, 10, MINIMAP_SIZE, MINIMAP_SIZE)
+def generateEnemies(num):
+    enemies = []
+    for i in range(num):
+        enemies.append(generate_random_enemy())
+    return enemies
+
+def draw_minimap(location, enemies, screen, screen_center):
+    minimap_rect = pygame.Rect(
+        screen_center[0] - MINIMAP_SIZE // 2,
+        screen_center[1] - MINIMAP_SIZE // 2,
+        MINIMAP_SIZE,
+        MINIMAP_SIZE,
+    )
     pygame.draw.rect(screen, (0, 0, 0), minimap_rect, 2)
 
     for enemy in enemies:
-        x = int(center.x + enemy.x * MINIMAP_SIZE / 200)
-        y = int(center.y + enemy.y * MINIMAP_SIZE / 200)
-        pygame.draw.circle(screen, (255, 0, 0), (x, y), ENEMY_RADIUS)
+        x = int(screen_center[0] + enemy.x)
+        y = int(screen_center[1] + enemy.y)
+
+        # Check if the enemy is inside the minimap
+        if (
+            screen_center[0] - MINIMAP_SIZE // 2 <= x <= screen_center[0] + MINIMAP_SIZE // 2
+            and screen_center[1] - MINIMAP_SIZE // 2 <= y <= screen_center[1] + MINIMAP_SIZE // 2
+        ):
+            pygame.draw.circle(screen, (255, 0, 0), (x, y), ENEMY_RADIUS)  # Red if inside minimap
+        else:
+            pygame.draw.circle(screen, (0, 0, 255), (x, y), ENEMY_RADIUS)  # Blue if outside minimap
+
 
 def main():
     kd_tree = KDTree()
-    minimap_center = Point(WIDTH - MINIMAP_SIZE / 2 - 10, MINIMAP_SIZE / 2 + 10)
-    enemies = [Point(100,20),Point(50,50),Point(85,100),Point(200,200),Point(150,300),Point(500,210),Point(400,20)]
+    minimap_center = Point(0,-200)
+    enemies = generateEnemies(100)
+    
+    for enemy in enemies:
+        kd_tree.insert(enemy)
 
     running = True
     while running:
@@ -97,27 +124,27 @@ def main():
         # Handle key presses
         keys = pygame.key.get_pressed()
         if keys[K_w]:
-            print(f'key {keys[K_w] } pressed')
-            minimap_center.y -= 1
-            draw_minimap(minimap_center, enemies, screen)
+            minimap_center.y += 0.1
+            print(minimap_center)
+            draw_minimap(minimap_center, enemies, screen, screen_center)
         if keys[K_s]:
-            minimap_center.y += 1
-            draw_minimap(minimap_center, enemies, screen)
+            minimap_center.y -= 0.1
+            draw_minimap(minimap_center, enemies, screen, screen_center)
         if keys[K_a]:
-            minimap_center.x -= 1
-            draw_minimap(minimap_center, enemies, screen)
+            minimap_center.x -= 0.1
+            draw_minimap(minimap_center, enemies, screen, screen_center)
         if keys[K_d]:
-            minimap_center.x += 1
-            draw_minimap(minimap_center, enemies, screen)
+            minimap_center.x += 0.1
+            draw_minimap(minimap_center, enemies, screen, screen_center)
 
         screen.fill((255, 255, 255))
         
-        new_enemy = generate_random_enemy()
-        kd_tree.insert(new_enemy)
+        # new_enemy = generate_random_enemy()
+        # kd_tree.insert(new_enemy)
         enemies = kd_tree.search(Point(minimap_center.x - MINIMAP_SIZE / 2, minimap_center.y - MINIMAP_SIZE / 2),
                                  Point(minimap_center.x + MINIMAP_SIZE / 2, minimap_center.y + MINIMAP_SIZE / 2))
         
-        draw_minimap(minimap_center, enemies, screen)
+        draw_minimap(minimap_center, enemies, screen, screen_center)
 
         pygame.display.flip()
 
