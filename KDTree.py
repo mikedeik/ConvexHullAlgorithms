@@ -9,11 +9,11 @@ class KDNode:
 
 class KDTree:
     def __init__(self, points):
-        self.k = len(points[0])  # Number of dimensions
+        self.k = len(points[0]) # Number of dimensions
         self.root = self.build(points)
 
     def build(self, points, depth=0):
-        if not points:
+        if not len(points):
             return None
 
         # Alternate between dimensions
@@ -52,8 +52,10 @@ class KDTree:
         return inside_points
 
 if __name__ == '__main__':
-    # Example usage:
-    points = [(2, 3), (5, 4), (9, 6),(3.2, 4), (4, 7), (8, 1), (7, 2), (8,5), (10, 7)]
+
+    np.random.seed(0)
+    points = np.random.randint(-100, 101, size=(50, 2))
+    points = [tuple(point) for point in points]
     kdtree = KDTree(points)
     rect_min = (3, 2)
     rect_max = (8, 5)
