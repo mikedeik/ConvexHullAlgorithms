@@ -79,6 +79,7 @@ def main():
 
         start_time = time.time()
         giftwrap = GiftWrap(points=points,visualize=False)
+        giftwrap.createConvexHull()
         end_time = time.time()
 
         execution_times['giftwrap'] = end_time - start_time
