@@ -27,7 +27,8 @@ def main():
     num_of_points = args.num_of_points
 
     points = generatePoints(num_of_points)
-
+    print("Starting Points")
+    print(points)
     execution_times = {
         'incremental': 0,
         'giftwrap': 0,
