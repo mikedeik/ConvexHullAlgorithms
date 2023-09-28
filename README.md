@@ -43,4 +43,4 @@
 
      Οπτικοποίηση Σημείων:
    
-   ![images/Incremental.png](Images/Incremental.png)
+   ![Images/GiftWrap.png](Images/GiftWrap.png)
