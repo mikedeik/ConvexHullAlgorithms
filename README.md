@@ -55,4 +55,8 @@
 
      Οπτικοποίηση Σημείων:
    
-   ![Images/GiftWrap.png](Images/GiftWrap.png)
+   ![Images/QuickHull.png](Images/QuickHull.png) 
+
+ - `Σύγκριση Αλγορίθμων ώς προς τον χρόνο`
+    
+    
