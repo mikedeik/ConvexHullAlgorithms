@@ -62,17 +62,21 @@ def main():
         # Handle key presses
         keys = pygame.key.get_pressed()
         if keys[K_w]:
-            minimap_center._y -= 0.1
-            print(minimap_center)
+            if minimap_center._y + (MINIMAP_SIZE // 2) > MINIMAP_SIZE: 
+                minimap_center._y -= 0.1
+            
             # draw_minimap(minimap_center, enemies, screen, screen_center)
         if keys[K_s]:
-            minimap_center._y += 0.1
+            if minimap_center._y + (MINIMAP_SIZE // 2) < HEIGHT: 
+                minimap_center._y += 0.1
             # draw_minimap(minimap_center, enemies, screen, screen_center)
         if keys[K_a]:
-            minimap_center._x -= 0.1
+            if minimap_center._x + (MINIMAP_SIZE // 2) > MINIMAP_SIZE:
+                minimap_center._x -= 0.1
             # draw_minimap(minimap_center, enemies, screen, screen_center)
         if keys[K_d]:
-            minimap_center._x += 0.1
+            if minimap_center._x + (MINIMAP_SIZE // 2) < WIDTH: 
+                minimap_center._x += 0.1
             # draw_minimap(minimap_center, enemies, screen, screen_center)
 
         screen.fill((255, 255, 255))
