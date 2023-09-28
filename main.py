@@ -40,6 +40,7 @@ def main():
         incremental = incrementalAlgorithm(points=points,visualize=visualize)
         incremental.createConvexHull()
         print(incremental.getConvexHull())
+
     elif algortihm == 'giftwrap':
         giftwrap = GiftWrap(points=points,visualize=visualize)
         giftwrap.createConvexHull()
@@ -72,7 +73,6 @@ def main():
         start_time = time.time()
         incremental = incrementalAlgorithm(points=points,visualize=False)
         incremental.createConvexHull()
-        # print(incremental.getConvexHull())
         end_time = time.time()
 
         execution_times['incremental'] = end_time - start_time

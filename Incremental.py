@@ -115,6 +115,7 @@ class incrementalAlgorithm:
         purple_start = self.convexHull.getEdges()[min(redEdges)].start()
         purple_end = self.convexHull.getEdges()[max(redEdges)].end()
 
+        # actually return purple vertices
         return purple_start, purple_end
         # return redEdges
 
@@ -123,6 +124,7 @@ class incrementalAlgorithm:
     def createConvexHull(self):
 
         for index in range(3, len(self.points)):
+            # get the purple vertices
             purple_start, purple_end = self.findRedEdges(self.points[index - 1], self.points[index])
 
             purple_start_index = self.convexHull.getVertices().index(purple_start)
@@ -134,7 +136,7 @@ class incrementalAlgorithm:
             for i in range(purple_start_index + 1, purple_end_index):
                 self.convexHull.removeVertice(self.convexHull.getVertices()[purple_start_index + 1])
 
-
+            # make sure that triangle is ccw
             if len(self.convexHull.getVertices()) == 2 and not ccw(self.convexHull.getVertices()[0], self.convexHull.getVertices()[1], self.points[index]):
 
                 self.convexHull.addPoint(self.points[index])

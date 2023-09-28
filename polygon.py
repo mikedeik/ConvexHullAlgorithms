@@ -221,8 +221,9 @@ class Polygon:
         edges_str = ', '.join([f"({edge._start._x}, {edge._start._y}) -> ({edge._end._x}, {edge._end._y})" for edge in self.edges])
         return f"Vertices: [{vertices_str}]\nEdges: [{edges_str}]"
 
+# for testing purposes
 if __name__ == '__main__':
-    # Example usage:
+
     polygon = Polygon()
     polygon.addPoint(Point(1.0, 1.0))
     polygon.addPoint(Point(2.0, 2.0))

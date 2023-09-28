@@ -24,16 +24,18 @@ class GiftWrap:
         convex_hull = Polygon()
         convex_hull.addPoint(first_point)
         
-
+        # if visualize is true
         if self.visualize:
             plt.figure(figsize=(8, 6))
             plt.ion()  # Turn on interactive mode
+
 
         for i in range(len(self.points)):
             next_point = None
             for point in self.points:
                 if point == current_point:
                     continue
+                # if 
                 if next_point is None or not ccw(current_point, next_point, point):
                     next_point = point
 

@@ -22,6 +22,7 @@ pygame.display.set_caption("Minimap with Enemies")
 def generate_random_enemy():
     return Point(random.uniform(0, 500), random.uniform(0, 500))
 
+# returns the points as tuples for the kd tree to build correctly
 def generateEnemies(num):
     points = np.random.randint(0, 500, size=(num, 2))
     points = [tuple(point) for point in points]
@@ -64,25 +65,19 @@ def main():
         if keys[K_w]:
             if minimap_center._y + (MINIMAP_SIZE // 2) > MINIMAP_SIZE: 
                 minimap_center._y -= 0.1
-            
-            # draw_minimap(minimap_center, enemies, screen, screen_center)
+    
         if keys[K_s]:
             if minimap_center._y + (MINIMAP_SIZE // 2) < HEIGHT: 
                 minimap_center._y += 0.1
-            # draw_minimap(minimap_center, enemies, screen, screen_center)
         if keys[K_a]:
             if minimap_center._x + (MINIMAP_SIZE // 2) > MINIMAP_SIZE:
                 minimap_center._x -= 0.1
-            # draw_minimap(minimap_center, enemies, screen, screen_center)
         if keys[K_d]:
             if minimap_center._x + (MINIMAP_SIZE // 2) < WIDTH: 
                 minimap_center._x += 0.1
-            # draw_minimap(minimap_center, enemies, screen, screen_center)
 
         screen.fill((255, 255, 255))
-        
-        # new_enemy = generate_random_enemy()
-        # kd_tree.insert(new_enemy)
+        # get the enemies inside the minimap and drw them
         enemies_inside = [Point(point[0], point[1]) for point in kd_tree.points_inside_rectangle((minimap_center._x - MINIMAP_SIZE / 2, minimap_center._y - MINIMAP_SIZE / 2),
                                  (minimap_center._x + MINIMAP_SIZE / 2, minimap_center._y + MINIMAP_SIZE / 2))]
         

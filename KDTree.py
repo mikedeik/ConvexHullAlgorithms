@@ -32,7 +32,7 @@ class KDTree:
             left=self.build(points[:median], depth + 1),
             right=self.build(points[median + 1:], depth + 1)
         )
-
+    # starting at root we do a reursive search into the tree
     def points_inside_rectangle(self, rect_min, rect_max):
         inside_points = []
 
@@ -41,7 +41,7 @@ class KDTree:
                 return
 
             axis = depth % self.k
-
+            
             if rect_min[axis] <= node.point[axis] <= rect_max[axis]:
                 if all(rect_min[i] <= node.point[i] <= rect_max[i] for i in range(self.k)):
                     inside_points.append(node.point)
@@ -58,7 +58,7 @@ class KDTree:
         return inside_points
     
     def plot_kd_tree_and_rectangle(self, inside_points, rect_min, rect_max):
-    # Extract points from the KD tree
+    
         
 
         # Plot KD tree points in blue
@@ -70,7 +70,7 @@ class KDTree:
         plt.scatter(inside_points_x, inside_points_y, c='red', label='Inside Rectangle')
 
 
-        # Plot the rectangle
+        # Plot the rectangle in green lines
         plt.gca().add_patch(plt.Rectangle(rect_min, rect_max[0] - rect_min[0], rect_max[1] - rect_min[1], fill=False, color='green', linewidth=2, label='Rectangle'))
 
         plt.xlabel('X-axis')
