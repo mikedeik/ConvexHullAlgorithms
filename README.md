@@ -30,6 +30,10 @@
 
    Οπτικοποίηση Σημείων:
    
-   ![Κυρτό Περίβλημα](images/Incremental.png)  
+   ![images/Incremental.png](Images/Incremental.png)
 
-![Animated Gif of Incremental](convex_hull_animation.gif)
+   Οπτικοποίηση Κατασκευής για το (γ):
+   
+   ![Animated Gif of Incremental](convex_hull_animation.gif)
+
+   
